@@ -8,6 +8,56 @@
 // ================================
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbyVyYeVbvWwmmrmKcHpAxjs4cKehGumZ3rTA0OdAOJqYbnV-Vz477Ov6sgR3IyJUvA/exec";
 
+/***************************************
+ * レビュー割り当て（固定）
+ * 弱い選択肢ほどレビューが高くなる設計
+ * 選択肢の順番は既存の labels に対応
+ ***************************************/
+const REVIEW_TABLE = {
+  laptop: {
+    A: 3.3,
+    B: 4.8,
+    C: 4.5,
+    D: 4.1,
+    E: 3.7
+  },
+  apartment: {
+    1: 4.8,
+    2: 4.4,
+    3: 3.3,
+    4: 3.6,
+    5: 4.2
+  },
+  company: {
+    1: 4.5,
+    2: 3.8,
+    3: 4.8,
+    4: 4.2,
+    5: 3.3
+  },
+  souvenir: {
+    1: 4.2,
+    2: 4.8,
+    3: 3.7,
+    4: 4.5,
+    5: 3.3
+  },
+  detergent: {
+    A: 4.2,
+    B: 4.8,
+    C: 3.3,
+    D: 4.5,
+    E: 3.7
+  }
+};
+
+// 数値（例：4.5）を「4.5 (★★★★★)」の形に変換する
+function formatReviewValue(num) {
+  const rounded = Math.round(num * 10) / 10;
+  const stars = Math.round(rounded);
+  const starStr = "★".repeat(stars) + "☆".repeat(5 - stars);
+  return `${rounded.toFixed(1)} (${starStr})`;
+}
 
 // ================================
 // 1. Utility: シード付き乱数
@@ -239,30 +289,30 @@ function buildTasksWithReview() {
   for (const key of Object.keys(tasks)) {
     const t = tasks[key];
 
-    // 5属性を複製して6属性目を足す
-    if (
-      key === selectedHigh ||
-      key === selectedLow ||
-      key === selectedNone
-    ) {
-      // ★レビュー属性を追加する
-      t.attributes.push("レビュー評価");
-      t.options = t.options.map(row => {
-        const r = row.slice();
-        r.push(makeReviewScore());   // 各選択肢でレビュー評価
-        return r;
-      });
-      t.review_present = true;
-    } else {
-      // ★ダミー属性を追加
-      t.attributes.push("その他情報");  // レビューなし条件の6列目
-      t.options = t.options.map(row => {
-        const r = row.slice();
-        r.push(makeDummyValue());
-        return r;
-      });
-      t.review_present = false;
-    }
+    // ★レビューあり条件：固定テーブルから割り当て
+if (key === selectedHigh || key === selectedLow || key === selectedNone) {
+  t.attributes.push("レビュー評価");
+
+  t.options = t.options.map((row, idx) => {
+    const r = row.slice();
+    const label = t.labels[idx];  // A～E などの選択肢名
+    const score = REVIEW_TABLE[key][label];
+    r.push( formatReviewValue(score) );
+    return r;
+  });
+
+  t.review_present = true;
+
+// ★レビューなし条件：ダミー属性
+} else {
+  t.attributes.push("その他情報");
+  t.options = t.options.map(row => {
+    const r = row.slice();
+    r.push("—");   // 中立値
+    return r;
+  });
+  t.review_present = false;
+}
   }
 
   return tasks;
