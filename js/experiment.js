@@ -6,7 +6,7 @@
 // ================================
 // 0. Google スプレッドシート URL
 // ================================
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbyVyYeVbvWwmmrmKcHpAxjs4cKehGumZ3rTA0OdAOJqYbnV-Vz477Ov6sgR3IyJUvA/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbygEuGMs2YTrcX13nRbB07hjwX-ve_3Aypv8WuePBDUSzTR7hVepsVqWgCuZ6-j7Loc/exec";
 
 /***************************************
  * レビュー割り当て（固定）
