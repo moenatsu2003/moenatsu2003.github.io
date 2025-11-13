@@ -6,7 +6,7 @@
 // ================================
 // 0. Google スプレッドシート URL
 // ================================
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbziV2BEsBTb0V7mWETaULDmh-2EIimiKtYwI_-kamH-JbYRYl3OVLIxrkkjrEDoZsvZ/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbyVyYeVbvWwmmrmKcHpAxjs4cKehGumZ3rTA0OdAOJqYbnV-Vz477Ov6sgR3IyJUvA/exec";
 
 
 // ================================
