@@ -1,6 +1,6 @@
 /***************************************
- * experiment.js (Part 1)
- * 6属性方式 + レビュー列位置ランダム化 + 16 URLパターン
+ * experiment.js（完全安定版）
+ * 6属性方式 + レビュー列 + 16パターン + 参加者情報＋尺度
  ***************************************/
 
 // ================================
@@ -8,10 +8,220 @@
 // ================================
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbz2AYuQJU9igRHOX0M6BPlW4dCPqrEjkzIPHC3QFR6Dn1TW60FcaUJZul2Z7-AWAntv/exec";
 
+/* ===========================================
+   参加者情報入力画面（#app 内だけを書き換える）
+=========================================== */
+
+function participantInfoTrial() {
+  return new Promise((resolve) => {
+    const app = document.getElementById("app");
+    app.innerHTML = `
+      <div style="max-width:700px;margin:40px auto;font-size:18px;line-height:1.7;">
+        <h2>参加者情報の入力</h2>
+        <p>以下の項目に回答してください。</p>
+
+        <label>性別：</label><br>
+        <select id="gender" style="font-size:18px;">
+          <option value="">選択してください</option>
+          <option value="男性">男性</option>
+          <option value="女性">女性</option>
+          <option value="その他">その他</option>
+          <option value="回答しない">回答しない</option>
+        </select><br><br>
+
+        <label>年齢：</label><br>
+        <input id="age" type="number" min="16" max="80" style="font-size:18px;width:200px;"><br><br>
+
+        <label>学年：</label><br>
+        <select id="grade" style="font-size:18px;">
+          <option value="">選択してください</option>
+          <option value="大学1年">大学1年</option>
+          <option value="大学2年">大学2年</option>
+          <option value="大学3年">大学3年</option>
+          <option value="大学4年">大学4年</option>
+          <option value="大学院 修士">大学院 修士</option>
+          <option value="大学院 博士">大学院 博士</option>
+          <option value="その他">その他</option>
+        </select><br><br>
+
+        <label>大学所在地：</label><br>
+        <select id="location" style="font-size:18px;width:600px;">
+          <option value="">選択してください</option>
+          <option value="北海道">北海道</option>
+          <option value="東北（青森・岩手・宮城・秋田・山形・福島）">東北（青森・岩手・宮城・秋田・山形・福島）</option>
+          <option value="関東（茨城・栃木・群馬・埼玉・千葉・東京・神奈川）">関東（茨城・栃木・群馬・埼玉・千葉・東京・神奈川）</option>
+          <option value="中部（新潟・富山・石川・福井・山梨・長野・岐阜・静岡・愛知）">中部（新潟・富山・石川・福井・山梨・長野・岐阜・静岡・愛知）</option>
+          <option value="近畿（三重・滋賀・京都・大阪・兵庫・奈良・和歌山）">近畿（三重・滋賀・京都・大阪・兵庫・奈良・和歌山）</option>
+          <option value="中国（鳥取・島根・岡山・広島・山口）">中国（鳥取・島根・岡山・広島・山口）</option>
+          <option value="四国（徳島・香川・愛媛・高知）">四国（徳島・香川・愛媛・高知）</option>
+          <option value="九州・沖縄（福岡・佐賀・長崎・熊本・大分・宮崎・鹿児島・沖縄）">九州・沖縄（福岡・佐賀・長崎・熊本・大分・宮崎・鹿児島・沖縄）</option>
+        </select><br><br>
+
+        <label>専攻分野：</label><br>
+        <select id="major_field" style="font-size:18px;">
+          <option value="">選択してください</option>
+          <option value="文系">文系</option>
+          <option value="理系">理系</option>
+          <option value="その他">その他</option>
+        </select><br><br>
+
+        <label>専攻領域：</label><br>
+        <select id="major_detail" style="font-size:18px;width:400px;">
+          <option value="">選択してください</option>
+          <option value="心理学">心理学</option>
+          <option value="経済・経営・商学">経済・経営・商学</option>
+          <option value="文学・人文系">文学・人文系</option>
+          <option value="法学・政治学">法学・政治学</option>
+          <option value="教育学">教育学</option>
+          <option value="社会学">社会学</option>
+          <option value="理学">理学（数学・物理・化学など）</option>
+          <option value="工学・情報系">工学・情報系</option>
+          <option value="医・薬・看護・保健系">医・薬・看護・保健系</option>
+          <option value="農学・生命科学">農学・生命科学</option>
+          <option value="その他">その他</option>
+        </select><br><br>
+
+        <button id="nextBtn" style="font-size:20px;padding:10px 25px;">次へ</button>
+      </div>
+    `;
+
+    document.getElementById("nextBtn").onclick = () => {
+      const info = {
+        gender: document.getElementById("gender").value,
+        age: document.getElementById("age").value,
+        grade: document.getElementById("grade").value,
+        location: document.getElementById("location").value,
+        major_field: document.getElementById("major_field").value,
+        major_detail: document.getElementById("major_detail").value
+      };
+
+      if (Object.values(info).includes("") || info.age === "") {
+        alert("すべての項目を入力してください。");
+        return;
+      }
+
+      // グローバルに保存
+      window.participantInfo = info;
+
+      resolve();
+    };
+  });
+}
+
+/* ===========================================
+   優柔不断尺度 16項目（#app 内で表示）
+=========================================== */
+
+const INDECISIVE_ITEMS = [
+  // F1 熟慮
+  { id: "F1_1", text: "何かを決めるときには，かなりあれこれ迷うほうだ。" },
+  { id: "F1_2", text: "いいなと思うものがあったら，他の選択肢はあまり見ない。" },
+  { id: "F1_3", text: "重要なことを決めるとき，些細な問題にこだわり多くの時間を費やす。" },
+  { id: "F1_4", text: "些細なことを決めるのでも，自分はとても時間がかかる。" },
+  { id: "F1_5", text: "何かを選ぶときは些細なことは気にしない。" },
+
+  // F2 先延ばし
+  { id: "F2_1", text: "決断を先送りにしようとする。" },
+  { id: "F2_2", text: "どうしても決断が必要になるまで決断しない。" },
+  { id: "F2_3", text: "予定を決めるとき，締め切り間際まで決断しない。" },
+  { id: "F2_4", text: "重要な問題は，直前まで決定を延ばす。" },
+
+  // F3 他者参照
+  { id: "F3_1", text: "他の人が何を選ぶのか気になる。" },
+  { id: "F3_2", text: "何かを決めるとき，人の意見を聞こうとする。" },
+  { id: "F3_3", text: "自分が選んだものが他の人と違うと不安になる。" },
+  { id: "F3_4", text: "何かを決めるとき，人の意見に左右されない。" },
+
+  // F4 不安
+  { id: "F4_1", text: "決断した後，その決断に後悔しない。" },
+  { id: "F4_2", text: "決めたあとで，間違ってしまったと思うことがよくある。" },
+  { id: "F4_3", text: "決断をするとき，自信を持って選ぶことができる。" }
+];
+
+const LIKERT_LABELS = [
+  "非常にあてはまらない（1）",
+  "あまりあてはまらない（2）",
+  "どちらとも言えない（3）",
+  "ややあてはまる（4）",
+  "非常にあてはまる（5）"
+];
+
+function indecisivenessScaleTrial() {
+  return new Promise((resolve) => {
+    const app = document.getElementById("app");
+
+    let html = `
+      <div style="max-width:800px;margin:30px auto;font-size:18px;line-height:1.7;">
+        <h2>日常の選択行動についての質問</h2>
+        <p>
+          次の文章について，あなた自身にどの程度あてはまるかをお尋ねします。<br>
+          もっとも適切だと思う選択肢を1つ選んでください。
+        </p>
+        <form id="scaleForm">
+    `;
+
+    INDECISIVE_ITEMS.forEach((item, idx) => {
+      html += `
+        <div style="margin:15px 0;padding:10px;border-bottom:1px solid #ccc;">
+          <div style="margin-bottom:8px;">
+            <b>Q${idx + 1}.</b> ${item.text}
+          </div>
+      `;
+      LIKERT_LABELS.forEach((label, v) => {
+        const value = v + 1; // 1〜5
+        const name = item.id;
+        const inputId = `${name}_${value}`;
+        html += `
+          <label for="${inputId}" style="margin-right:12px;">
+            <input type="radio" id="${inputId}" name="${name}" value="${value}">
+            ${label}
+          </label>
+        `;
+      });
+      html += `</div>`;
+    });
+
+    html += `
+        <div style="text-align:center;margin-top:20px;">
+          <button type="submit" style="font-size:20px;padding:10px 30px;">次へ</button>
+        </div>
+        </form>
+      </div>
+    `;
+
+    app.innerHTML = html;
+
+    const form = document.getElementById("scaleForm");
+    form.onsubmit = (e) => {
+      e.preventDefault();
+
+      const answers = {};
+      let missing = false;
+
+      INDECISIVE_ITEMS.forEach(item => {
+        const checked = document.querySelector(`input[name="${item.id}"]:checked`);
+        if (!checked) {
+          missing = true;
+        } else {
+          answers[item.id] = parseInt(checked.value, 10);
+        }
+      });
+
+      if (missing) {
+        alert("すべての質問に回答してください。");
+        return;
+      }
+
+      // グローバルに保存
+      window.indecisivenessScale = answers;
+
+      resolve();
+    };
+  });
+}
+
 /***************************************
- * レビュー割り当て（固定）
- * 弱い選択肢ほどレビューが高くなる設計
- * 選択肢の順番は既存の labels に対応
+ * レビュー割り当てテーブル（固定）
  ***************************************/
 const REVIEW_TABLE = {
   laptop: {
@@ -51,92 +261,45 @@ const REVIEW_TABLE = {
   }
 };
 
-// 数値（例：4.5）を「4.5 (★★★★★)」の形に変換する
+// 数値（例：4.5）を「4.5 (★★★★★)」の形に変換
 function formatReviewValue(num) {
   const rounded = Math.round(num * 10) / 10;
-  const stars = Math.round(rounded);
-  const starStr = "★".repeat(stars) + "☆".repeat(5 - stars);
+  const starsCount = Math.round(rounded);
+  const starStr = "★".repeat(starsCount) + "☆".repeat(5 - starsCount);
   return `${rounded.toFixed(1)} (${starStr})`;
 }
 
 // ================================
-// 1. Utility: シード付き乱数
-// （参加者ごとに乱数を固定したい場合）
+// 1. シード付き乱数 & パターン
 // ================================
 function makeSeededRandom(seed) {
   let x = seed % 2147483647;
   if (x <= 0) x += 2147483646;
-  return function() {
+  return function () {
     x = x * 16807 % 2147483647;
     return (x - 1) / 2147483646;
   };
 }
 
-// URLパラメータから参加者ID（乱数シード）を生成
 const urlParams = new URLSearchParams(window.location.search);
 const patternID = Number(urlParams.get("pattern") || "1");
-
-// 参加者ID（patternID をそのまま使う：再現性確保）
 const rand = makeSeededRandom(patternID);
 
-
-// ================================
-// 2. 評定（レビュー）生成
-// ================================
-
-// 高いレビューほど選ばれやすくなるようにしたいので、
-// 選択肢差が明確になる 3.4〜4.8 程度の範囲に設定。
-function makeReviewScore() {
-  const base = 3.4 + rand() * 1.4;  // 3.4〜4.8
-  const v = Math.round(base * 10) / 10;  // 小数1桁
-  const stars = "★".repeat(Math.round(v)) + "☆".repeat(5 - Math.round(v));
-  return `${v.toFixed(1)} (${stars})`;
-}
-
-// レビューなし条件ではダミー属性（中立情報）を置く
-function makeDummyValue() {
-  // 課題間で中立な6属性目として使う
-  const list = ["—", "標準", "ふつう", "中程度", "一般的"];
-  return list[Math.floor(rand() * list.length)];
-}
-
-
-// ================================
-// 3. 16パターン：レビュー有無（3ビット）＋属性順（2パターン）
-// ================================
-// 各コスト帯の2課題ペア：1つを「レビューあり」にする
-// highPair = 0: laptop, 1: apartment
-// lowPair  = 0: souvenir, 1: detergent
-// nonePair = 0: company, 1: course
-//
-// 属性順 0=通常, 1=逆順
-//
-// パターン1〜16 = 8(review組み合わせ) × 2(order)
-
+// 16パターンのうち、レビュー有無を3ビットで表現
 function decodePattern(pattern) {
-  // (1) 1〜16を 1〜8 と 0/1 に分解
   const rGroup = ((pattern - 1) % 8);     // 0〜7
-  const orderFlag = (pattern > 8 ? 1 : 0); // 0 or 1
+  const orderFlag = (pattern > 8 ? 1 : 0); // 0 or 1（今回は未使用だが残しておく）
 
-  // (2) 3ビット分解
-  const highBit = (rGroup & 1) ? 1 : 0;       // 高コスト: laptop=0 or apartment=1
-  const lowBit  = (rGroup & 2) ? 1 : 0;       // 低コスト
-  const noneBit = (rGroup & 4) ? 1 : 0;       // コストなし
+  const highBit = (rGroup & 1) ? 1 : 0;
+  const lowBit  = (rGroup & 2) ? 1 : 0;
+  const noneBit = (rGroup & 4) ? 1 : 0;
 
-  return {
-    highBit,
-    lowBit,
-    noneBit,
-    orderFlag
-  };
+  return { highBit, lowBit, noneBit, orderFlag };
 }
 
 const PAT = decodePattern(patternID);
 
-
-// ================================
-// 4. 課題の順番：全6課題をランダムシャッフル
-// ================================
+// シャッフル（シード付き）
 function shuffle(arr) {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
@@ -146,10 +309,7 @@ function shuffle(arr) {
   return a;
 }
 
-
-// ================================
-// 5. スプレッドシート送信
-// ================================
+// スプレッドシート送信
 function sendToSheet(resultObj) {
   fetch(SHEET_URL, {
     method: "POST",
@@ -162,23 +322,11 @@ function sendToSheet(resultObj) {
   }).catch(e => console.error("送信失敗:", e));
 }
 
-
-// ================================
-// 6. ここから Part 2（課題データ）へ続く
-// ================================
-
 /***************************************
- * experiment.js (Part 2)
- * 6課題データ：5属性 + レビュー/ダミー（6属性化）
+ * 6課題データ（5属性）ベース
  ***************************************/
-
-// =====================================
-// 7. 元の 5 属性データ
-// =====================================
-
 const TASKS_BASE = {
-
-  // -------- 高コスト帯 --------
+  // 高コスト
   laptop: {
     name: "ノートパソコン",
     cost: "high",
@@ -207,7 +355,7 @@ const TASKS_BASE = {
     labels: ["1","2","3","4","5"]
   },
 
-  // -------- 低コスト帯 --------
+  // 低コスト
   souvenir: {
     name: "お土産（お菓子）",
     cost: "low",
@@ -236,15 +384,15 @@ const TASKS_BASE = {
     labels: ["A","B","C","D","E"]
   },
 
-  // -------- コストなし --------
-　company: {
+  // コストなし
+  company: {
     name: "就職会社",
     cost: "none",
     attributes: ["業種への興味","平均就業時間","将来性","創業年","初任給"],
     options: [
-      ["ふつう","8時間","やや低い","5年","20万"],   // ← No.1 初任給20万
+      ["ふつう","8時間","やや低い","5年","20万"],
       ["低い","10時間","やや高い","20年","27万"],
-      ["やや高い","11時間","ふつう","65年","19万"],  // ← No.3 初任給19万
+      ["やや高い","11時間","ふつう","65年","19万"],
       ["やや低い","12時間","高い","50年","21万"],
       ["高い","9時間","低い","35年","24万"]
     ],
@@ -264,19 +412,14 @@ const TASKS_BASE = {
     ],
     labels: ["1","2","3","4","5"]
   }
-
 };
 
-
-// =====================================
-// 8. 6属性化：レビュー or ダミー属性を付与
-//    （PAT.highBit / lowBit / noneBit に従う）
-// =====================================
-
+/***************************************
+ * 6属性化：レビュー or ダミー属性を付与
+ ***************************************/
 function buildTasksWithReview() {
   const tasks = JSON.parse(JSON.stringify(TASKS_BASE));
 
-  // コスト帯ごとに決定
   const highPair = ["laptop","apartment"];
   const lowPair  = ["souvenir","detergent"];
   const nonePair = ["company","course"];
@@ -285,34 +428,31 @@ function buildTasksWithReview() {
   const selectedLow  = lowPair[PAT.lowBit];
   const selectedNone = nonePair[PAT.noneBit];
 
-  // 全課題に対して 6 属性を作る
   for (const key of Object.keys(tasks)) {
     const t = tasks[key];
 
-    // ★レビューあり条件：固定テーブルから割り当て
-if (key === selectedHigh || key === selectedLow || key === selectedNone) {
-  t.attributes.push("レビュー評価");
+    // レビューあり課題
+    if (key === selectedHigh || key === selectedLow || key === selectedNone) {
+      t.attributes.push("レビュー評価");
+      t.options = t.options.map((row, idx) => {
+        const r = row.slice();
+        const label = t.labels[idx];
+        const score = REVIEW_TABLE[key][label];
+        r.push(formatReviewValue(score));
+        return r;
+      });
+      t.review_present = true;
 
-  t.options = t.options.map((row, idx) => {
-    const r = row.slice();
-    const label = t.labels[idx];  // A～E などの選択肢名
-    const score = REVIEW_TABLE[key][label];
-    r.push( formatReviewValue(score) );
-    return r;
-  });
-
-  t.review_present = true;
-
-// ★レビューなし条件：ダミー属性
-} else {
-  t.attributes.push("その他情報");
-  t.options = t.options.map(row => {
-    const r = row.slice();
-    r.push("—");   // 中立値
-    return r;
-  });
-  t.review_present = false;
-}
+    // レビューなし課題（ダミー属性）
+    } else {
+      t.attributes.push("その他情報");
+      t.options = t.options.map(row => {
+        const r = row.slice();
+        r.push("—");
+        return r;
+      });
+      t.review_present = false;
+    }
   }
 
   return tasks;
@@ -320,30 +460,21 @@ if (key === selectedHigh || key === selectedLow || key === selectedNone) {
 
 const ALL_TASKS = buildTasksWithReview();
 
-
-// Part 3（UIと実行部分）につづく
 /***************************************
- * experiment.js (Part 3)
- * UI（6属性×5行のパネル）＋クリックログ＋決定＋送信
+ * 属性順シャッフル
  ***************************************/
-
-// =====================================
-// 9. 各課題の属性順をシャッフル
-// =====================================
-
 function applyAttributeOrder(tasks) {
   for (const key of Object.keys(tasks)) {
     const t = tasks[key];
+
     const zipped = t.attributes.map((attr, idx) => {
       return { attr, col: t.options.map(row => row[idx]) };
     });
 
-    // ★レビュー属性も含めて毎課題シャッフル
     const shuffled = shuffle(zipped);
 
     t.attributes = shuffled.map(z => z.attr);
 
-    // options の列順をシャッフル後に再構成
     const newOptions = [];
     for (let r = 0; r < t.options.length; r++) {
       newOptions[r] = [];
@@ -358,27 +489,23 @@ function applyAttributeOrder(tasks) {
 
 const TASKS_ORDERED = applyAttributeOrder(JSON.parse(JSON.stringify(ALL_TASKS)));
 
-
-// =====================================
-// 10. 課題の順番をランダム化
-// =====================================
+// 課題順ランダム
 const TASK_KEYS = shuffle(["laptop","apartment","souvenir","detergent","company","course"]);
 
-
-// =====================================
-// 11. UIレンダリングとログ
-// =====================================
+/***************************************
+ * UIレンダリング＋ログ
+ ***************************************/
 let currentTaskIndex = 0;
 let startTime = 0;
 let clickLog = [];
-let lastOpened = null;
+let lastOpenedCell = null;
 
 function renderTask() {
   const key = TASK_KEYS[currentTaskIndex];
   const task = TASKS_ORDERED[key];
 
   clickLog = [];
-  lastOpened = null;
+  lastOpenedCell = null;
   startTime = performance.now();
 
   const app = document.getElementById("app");
@@ -390,20 +517,17 @@ function renderTask() {
   title.style.margin = "15px";
   app.appendChild(title);
 
-  // === グリッド ===
   const grid = document.createElement("div");
   grid.style.display = "grid";
-  grid.style.gridTemplateColumns = "120px repeat(6, 120px)";  // 7列（ラベル1 + 属性6）
+  grid.style.gridTemplateColumns = "120px repeat(6, 120px)";
   grid.style.gap = "0";
   grid.style.margin = "0 auto";
   grid.style.border = "1px solid #ccc";
   grid.style.background = "#ccc";
   grid.style.maxWidth = "900px";
   grid.style.overflowX = "auto";
-
   app.appendChild(grid);
 
-  // セル作成
   function makeCell(text, isHeader) {
     const div = document.createElement("div");
     div.textContent = text;
@@ -419,13 +543,13 @@ function renderTask() {
     return div;
   }
 
-  // === 上段（空 + 属性6列）
+  // 1行目：空 + 属性名
   grid.appendChild(makeCell("", true));
   for (let c = 0; c < task.attributes.length; c++) {
     grid.appendChild(makeCell(task.attributes[c], true));
   }
 
-  // === 各行（選択肢ラベル＋6パネル）
+  // 各行：選択肢ラベル + 6属性パネル
   for (let r = 0; r < task.options.length; r++) {
     grid.appendChild(makeCell(task.labels[r], true));
 
@@ -436,11 +560,11 @@ function renderTask() {
       cell.dataset.value = task.options[r][c];
 
       cell.onclick = () => {
-        if (lastOpened && lastOpened !== cell) {
-          lastOpened.textContent = "";
-          lastOpened.style.background = "#fff";
+        if (lastOpenedCell && lastOpenedCell !== cell) {
+          lastOpenedCell.textContent = "";
+          lastOpenedCell.style.background = "#fff";
         }
-        lastOpened = cell;
+        lastOpenedCell = cell;
 
         const t = Math.round(performance.now() - startTime);
         cell.textContent = cell.dataset.value;
@@ -458,7 +582,7 @@ function renderTask() {
     }
   }
 
-  // === 決定ボタン ===
+  // 決定ボタン
   const decideBtn = document.createElement("button");
   decideBtn.textContent = "決定";
   decideBtn.style.display = "block";
@@ -467,7 +591,6 @@ function renderTask() {
   decideBtn.style.fontSize = "16px";
   app.appendChild(decideBtn);
 
-  // === 選択肢選択エリア（後から表示）===
   const choiceArea = document.createElement("div");
   choiceArea.style.textAlign = "center";
   app.appendChild(choiceArea);
@@ -477,10 +600,7 @@ function renderTask() {
   };
 }
 
-
-// =====================================
-// 12. 選択肢ボタン部分
-// =====================================
+// 選択肢ボタン部分
 function renderChoiceButtons(task, box) {
   box.innerHTML = "";
 
@@ -489,8 +609,9 @@ function renderChoiceButtons(task, box) {
   msg.style.marginTop = "20px";
   box.appendChild(msg);
 
-  // 選択肢ボタン
   const chDiv = document.createElement("div");
+  let taskSubmitted = false;
+
   task.labels.forEach(label => {
     const b = document.createElement("button");
     b.textContent = label;
@@ -499,6 +620,8 @@ function renderChoiceButtons(task, box) {
     b.style.fontSize = "16px";
 
     b.onclick = () => {
+      if (taskSubmitted) return;
+      taskSubmitted = true;
       finishTask(task, label);
       highlightSelected(chDiv, b);
     };
@@ -507,7 +630,6 @@ function renderChoiceButtons(task, box) {
   });
   box.appendChild(chDiv);
 
-  // 次へ進む
   const nextBtn = document.createElement("button");
   nextBtn.textContent = "次の課題へ進む";
   nextBtn.style.marginTop = "15px";
@@ -529,10 +651,7 @@ function highlightSelected(div, btn) {
   btn.style.background = "#c8e6c9";
 }
 
-
-// =====================================
-// 13. 課題終了 → スプレッドシート送信
-// =====================================
+// 課題終了 → スプレッドシート送信
 function finishTask(task, choice) {
   const endTime = Math.round(performance.now() - startTime);
 
@@ -544,16 +663,15 @@ function finishTask(task, choice) {
     choice,
     decision_time: endTime,
     click_log: clickLog,
-    attribute_order: task.attributes  // 保存しておく
+    attribute_order: task.attributes,
+    participant_info: window.participantInfo || null,
+    indecisiveness_scale: window.indecisivenessScale || null
   };
 
   sendToSheet(resultObj);
 }
 
-
-// =====================================
-// 14. 終了画面
-// =====================================
+// 終了画面
 function showEnd() {
   const app = document.getElementById("app");
   app.innerHTML = `
@@ -563,10 +681,20 @@ function showEnd() {
   `;
 }
 
+/***************************************
+ * 実行エントリポイント
+ ***************************************/
+async function runExperiment() {
+  await participantInfoTrial();
+  await indecisivenessScaleTrial();
+  currentTaskIndex = 0;
+  renderTask();
+}
 
-// =====================================
-// 15. 実行
-// =====================================
-window.onload = () => {
-  renderTask();  // 最初の課題
-};
+window.addEventListener("load", () => {
+  const app = document.getElementById("app");
+  if (app) {
+    app.textContent = "読み込み中…";
+  }
+  runExperiment();
+});
