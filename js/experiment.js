@@ -8,6 +8,18 @@
 // ================================
 const SHEET_URL = "https://script.google.com/macros/s/AKfycbwpEFN0Hx6cb2Kfsw7_rrIO8PlxFDwcj7dJP4ftmy2qrPdmCzXZoseo-9VEMh_70YII/exec";
 
+// ---------------------------------------
+// ★ pattern を自動ランダム割り当てする処理
+// ---------------------------------------
+const urlParams = new URLSearchParams(window.location.search);
+let patternID = Number(urlParams.get("pattern"));
+
+if (!patternID) {
+  patternID = Math.floor(Math.random() * 16) + 1;
+  // 自動で URL を書き換えてリロード（pattern=xx を追加）
+  window.location.search = "?pattern=" + patternID;
+}
+
 /* ===========================================
    参加者情報入力画面（#app 内だけを書き換える）
 =========================================== */
@@ -652,6 +664,9 @@ function highlightSelected(div, btn) {
 }
 
 // 課題終了 → スプレッドシート送信
+// =====================================
+// 13. 課題終了 → スプレッドシート送信
+// =====================================
 function finishTask(task, choice) {
   const endTime = Math.round(performance.now() - startTime);
 
