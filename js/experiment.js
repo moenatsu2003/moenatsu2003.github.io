@@ -6,7 +6,7 @@
 // ================================
 // 0. Google スプレッドシート URL
 // ================================
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbz2AYuQJU9igRHOX0M6BPlW4dCPqrEjkzIPHC3QFR6Dn1TW60FcaUJZul2Z7-AWAntv/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbwpEFN0Hx6cb2Kfsw7_rrIO8PlxFDwcj7dJP4ftmy2qrPdmCzXZoseo-9VEMh_70YII/exec";
 
 /* ===========================================
    参加者情報入力画面（#app 内だけを書き換える）
