@@ -991,35 +991,37 @@ function showMainIntro() {
  * 12. 終了画面（倫理文書風）
  ***************************************/
 function showEnd() {
-  setAppHTML(`
-    <div style="max-width:720px;margin:24px auto;padding:16px 18px;
-                background:#FFFFFF;border-radius:12px;
-                box-shadow:0 2px 6px rgba(0,0,0,0.08);text-align:left;">
-      <h2 style="margin-top:0;color:#1A73E8;font-size:22px;text-align:center;">
-        実験は以上です
-      </h2>
+  const app = document.getElementById("app");
+
+  app.innerHTML = `
+    <div style="max-width:700px;margin:60px auto;font-size:18px;line-height:1.8;text-align:center;">
+      <h2 style="margin-bottom:25px;">実験へのご協力ありがとうございました</h2>
+
       <p>
-        すべての課題が終了しました。<br>
-        ご協力ありがとうございました。
+        この実験は、消費選択における情報探索・判断プロセスに関する研究の一環として実施しました。<br>
+        みなさまのご協力により、研究が大きく前進いたします。心より感謝申し上げます。
       </p>
-      <p>
-        みなさまにご回答いただいたデータは、匿名化されたうえで集計され、
-        卒業論文および学術的な発表のためにのみ使用されます。
-        個人が特定されるかたちで公表されることはありません。
+
+      <p style="margin-top:20px;">
+        任意ではありますが、謝礼抽選への応募はこちらから行えます。
       </p>
-      <p>
-        もし本研究の内容やデータの取り扱いについてご質問がある場合は、
-        担当者（指導教員または学生）までお問い合わせください。
+
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSfP6Gi-7OOqgIorUlBzFDGq5PDqCUhUPuFIGFbuJA5TGFcL3w/viewform?usp=dialog"
+         target="_blank"
+         style="display:inline-block;margin-top:20px;padding:14px 26px;
+                background:#0066cc;color:white;border-radius:8px;
+                text-decoration:none;font-size:18px;">
+        謝礼応募フォームを開く
+      </a>
+
+      <p style="margin-top:35px;font-size:15px;color:#666;">
+        ※実験データとは完全に切り離されており、匿名性は保たれます。<br>
+        ※抽選結果はフォームに記入いただいた連絡方法へお送りします。
       </p>
-      <p>
-        あらためて、本研究にご協力いただきましたことに深く感謝申し上げます。
-      </p>
-      <div style="text-align:center;margin-top:18px;color:#666;font-size:14px;">
-        画面を閉じて終了してください。
-      </div>
     </div>
-  `);
+  `;
 }
+
 
 /***************************************
  * 13. 実行エントリポイント
