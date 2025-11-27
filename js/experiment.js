@@ -529,8 +529,8 @@ function buildTasksWithReview() {
         const r = row.slice();
         const label = t.labels[idx];
         const score = REVIEW_TABLE[key][label];
-        r.push(formatReviewValue(score));
-        return r;
+        newRow[5] = formatReviewValue(score);  // ← 6列目に上書き
+        return newRow;
       });
       t.review_present = true;
 
