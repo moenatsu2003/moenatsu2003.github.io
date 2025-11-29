@@ -49,9 +49,9 @@
     font-size: 16px;
   }
 
-  /* =======================================
-     ⭐ スマホ時に横スクロールを防ぐための縮小処理
-     ======================================= */
+  /* ★★★ ここから追加 ★★★ */
+
+  /* パネル全体を縮小するコンテナ */
   .scale-container {
     transform-origin: top left;
     width: 100%;
@@ -59,19 +59,18 @@
 
   @media (max-width: 480px) {
 
-    /* 全体を 0.85 倍に縮小（必要に応じて0.8や0.9に調整可能） */
+    /* スマホのときだけ 0.85倍 に縮小 */
     .scale-container {
       transform: scale(0.85);
     }
 
-    /* パネル内の文字サイズを縮小 */
+    /* パネル内の文字を少し小さくする */
     .panel-item,
     .attribute-name {
       font-size: 12px !important;
       padding: 4px !important;
     }
 
-    /* 表全体の行間を圧縮 */
     .panel-item {
       line-height: 1.2;
     }
@@ -83,17 +82,16 @@
     h2 { font-size: 22px; }
     h3 { font-size: 18px; }
   }
+
+  /* ★★★ ここまで追加 ★★★ */
+
   </style>
 </head>
-
 <body>
-  <!-- ⭐ experiment.js 側で、パネル全体をこの div で囲む必要あり -->
-  <!-- <div class="scale-container"> ... パネル表 ... </div> -->
-
   <div class="wrap">
     <div id="app"></div>
   </div>
-
-  <script src="js/experiment.js?v=20251123b"></script>
+  <script src="js/experiment.js?v=20251129a"></script>
+  <!-- ↑ キャッシュ回避のため、バージョンだけ "20251129a" など新しい文字にしておくと安心 -->
 </body>
 </html>
