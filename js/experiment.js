@@ -622,24 +622,24 @@ function renderTask() {
   title.style.color = "#1A73E8";
   app.appendChild(title);
 
-  // ★ scale-container を作成
-const scaleContainer = document.createElement("div");
-scaleContainer.className = "scale-container";
-app.appendChild(scaleContainer);
+  // ★ パネル全体を包むコンテナ（縮小用）
+  const scaleContainer = document.createElement("div");
+  scaleContainer.className = "scale-container";
+  app.appendChild(scaleContainer);
 
-// パネル本体
-const grid = document.createElement("div");
-grid.style.display = "grid";
-grid.style.gridTemplateColumns = "90px repeat(6, 110px)";
-grid.style.gap = "0";
-grid.style.margin = "0 auto";
-grid.style.border = "1px solid #ccc";
-grid.style.background = "#ccc";
-grid.style.maxWidth = "780px";
-grid.style.overflowX = "auto";
+  // パネル本体
+  const grid = document.createElement("div");
+  grid.style.display = "grid";
+  grid.style.gridTemplateColumns = "90px repeat(6, 110px)";
+  grid.style.gap = "0";
+  grid.style.margin = "0 auto";
+  grid.style.border = "1px solid #ccc";
+  grid.style.background = "#ccc";
+  grid.style.maxWidth = "780px";
+  grid.style.overflowX = "auto";
 
-// ★ grid を scale-container の中に入れる
-scaleContainer.appendChild(grid);
+  // ★ grid を scaleContainer の中に入れる
+  scaleContainer.appendChild(grid);
 
 
   // 1行目：空 + 属性名
@@ -847,12 +847,12 @@ function practiceTaskTrial() {
     title.style.color = "#1A73E8";
     app.appendChild(title);
 
-　　 // ★ scale-container を作成
-　　 const scaleContainer = document.createElement("div");
-　　 scaleContainer.className = "scale-container";
-　　 app.appendChild(scaleContainer);
+　　     // ★ 縮小用コンテナ
+    const scaleContainer = document.createElement("div");
+    scaleContainer.className = "scale-container";
+    app.appendChild(scaleContainer);
 
-　　 // パネル本体
+    // パネル本体
     const grid = document.createElement("div");
     grid.style.display = "grid";
     grid.style.gridTemplateColumns = "90px repeat(6, 110px)";
@@ -862,7 +862,9 @@ function practiceTaskTrial() {
     grid.style.background = "#ccc";
     grid.style.maxWidth = "780px";
     grid.style.overflowX = "auto";
-    app.appendChild(grid);
+
+    scaleContainer.appendChild(grid);
+
 
     grid.appendChild(createGridCell("", true));
     for (let c = 0; c < task.attributes.length; c++) {
