@@ -15,6 +15,13 @@ function setAppHTML(html) {
   if (app) app.innerHTML = html;
 }
 
+/* ================================
+   ★ デバイス判定（スマホのみ）
+================================ */
+function isMobileDevice() {
+  return /iPhone|Android.+Mobile|Windows Phone/i.test(navigator.userAgent);
+}
+
 /* ===========================================
    0-1: 実験導入ページ（研究倫理風）
 =========================================== */
@@ -80,9 +87,13 @@ function showIntroPage() {
 /* ===========================================
    ★ 縦画面ブロック用オーバーレイ（練習課題以降）
 =========================================== */
-
 function createOrientationOverlay() {
+
+  // ★ PCの場合はブロック不要 → 何も作らず return
+  if (!isMobileDevice()) return;
+
   const overlay = document.createElement("div");
+
   overlay.id = "orientationOverlay";
 
   Object.assign(overlay.style, {
@@ -122,7 +133,13 @@ function checkOrientation() {
   const overlay = document.getElementById("orientationOverlay");
   if (!overlay) return;
 
-  // 縦向き（portrait）の場合はブロック
+  // ★ PCは常にブロック解除
+  if (!isMobileDevice()) {
+    overlay.style.visibility = "hidden";
+    return;
+  }
+
+  // ★ スマホの場合は縦向きのみブロック
   if (window.matchMedia("(orientation: portrait)").matches) {
     overlay.style.visibility = "visible";
   } else {
