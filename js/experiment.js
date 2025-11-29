@@ -78,6 +78,70 @@ function showIntroPage() {
 }
 
 /* ===========================================
+   ★ 縦画面ブロック用オーバーレイ（練習課題以降）
+=========================================== */
+
+function createOrientationOverlay() {
+  const overlay = document.createElement("div");
+  overlay.id = "orientationOverlay";
+
+  Object.assign(overlay.style, {
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100vw",
+    height: "100vh",
+    background: "rgba(0,0,0,0.75)",
+    color: "white",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    fontSize: "20px",
+    padding: "20px",
+    zIndex: "99999",
+    visibility: "hidden"
+  });
+
+  overlay.innerHTML = `
+    <div>
+      <p style="font-size:22px;margin-bottom:16px;">
+        スマートフォンを横向きにしてください
+      </p>
+      <p style="font-size:16px;line-height:1.7;">
+        選択課題は横画面での実施をお願いしています。<br>
+        横向きにすると自動で再開します。
+      </p>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+}
+
+function checkOrientation() {
+  const overlay = document.getElementById("orientationOverlay");
+  if (!overlay) return;
+
+  // 縦向き（portrait）の場合はブロック
+  if (window.matchMedia("(orientation: portrait)").matches) {
+    overlay.style.visibility = "visible";
+  } else {
+    overlay.style.visibility = "hidden";
+  }
+}
+
+// 画面回転を監視
+window.addEventListener("orientationchange", () => {
+  setTimeout(checkOrientation, 200);
+});
+
+// リサイズ時にも確認（iPhone用）
+window.addEventListener("resize", () => {
+  setTimeout(checkOrientation, 200);
+});
+
+
+/* ===========================================
    1. 参加者情報入力画面
 =========================================== */
 function participantInfoTrial() {
@@ -1046,6 +1110,10 @@ async function runExperiment() {
   await participantInfoTrial();   // 参加者情報
   await indecisivenessScaleTrial(); // 優柔不断尺度
   await showPracticeIntro();      // 練習課題説明
+
+  createOrientationOverlay();   // ★ここで縦画面ブロックを有効化
+  checkOrientation();           // ★現在の向きを確認して即ブロック開始
+
   await practiceTaskTrial();      // 練習課題（保存なし）
   await showMainIntro();          // 本番課題説明
   currentTaskIndex = 0;
